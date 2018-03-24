@@ -1,30 +1,22 @@
 import java.io.*;
 import java.net.*;
 
-public class EchoClient
-{
-    public static void main(String[] args)
-    {
-        try
-        {
-            Socket s = new Socket("my static ip address here", 3000);
-            BufferedReader r = new BufferedReader(new InputStreamReader(s.getInputStream()));
-            PrintWriter w = new PrintWriter(s.getOutputStream(), true);
-            BufferedReader con = new BufferedReader(new InputStreamReader(System.in));
-            String line;
-            do
-            {
-                line = r.readLine();
-                if ( line != null )
-                    System.out.println(line);
-                line = con.readLine();
-                w.println(line);
-            }
-            while ( !line.trim().equals("bye") );
-        }
-        catch (Exception err)
-        {
-            System.err.println(err);
-        }
-    }
+class TCPClient {
+ public static void main(String argv[]) throws Exception {
+  String sentence;
+  String modifiedSentence;
+  BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+  Socket clientSocket = new Socket("localhost", 6789);
+  while(true){
+  DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+  BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+  sentence = inFromUser.readLine();
+  outToServer.writeBytes(sentence + '\n');
+  modifiedSentence = inFromServer.readLine();
+  System.out.println("FROM SERVER: " + modifiedSentence);
+  
+  clientSocket.close();
+  }
+  
+ }
 }
