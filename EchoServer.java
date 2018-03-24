@@ -1,39 +1,54 @@
-import java.net.Socket;
-import java.net.ServerSocket;
+import java.io.*;
+import java.net.*;
 
-public class EchoServer {
+public class EchoServer
+{
+	public EchoServer(int portnum)
+	{
+		try
+		{
+			server = new ServerSocket(portnum);
+		}
+		catch (Exception err)
+		{
+			System.out.println(err);
+		}
+	}
 
-    public static void main(String[] args) throws Exception {
+	public void serve()
+	{
+		try
+		{
+			while (true)
+			{
+				Socket client = server.accept();
+				BufferedReader r = new BufferedReader(new InputStreamReader(client.getInputStream()));
+				PrintWriter w = new PrintWriter(client.getOutputStream(), true);
+				w.println("Welcome to the Java EchoServer.  Type 'bye' to close.");
+				String line;
+				do
+				{
+					line = r.readLine();
+					if ( line != null )
+						w.println("Got: "+ line);
+				}
+				while ( !line.trim().equals("bye") );
+				client.close();
+			}
+		}
+		catch (Exception err)
+		{
+			System.err.println(err);
+		}
+	}
 
-        // create socket
-        int port = 4444;
-        ServerSocket serverSocket = new ServerSocket(port);
-        System.err.println("Started server on port " + port);
+	public static void main(String[] args)
+	{
+		EchoServer s = new EchoServer(9999);
+		s.serve();
+	}
 
-        // repeatedly wait for connections, and process
-        while (true) {
-
-            // a "blocking" call which waits until a connection is requested
-            Socket clientSocket = serverSocket.accept();
-            System.err.println("Accepted connection from client");
-
-            // open up IO streams
-            In  in  = new In (clientSocket);
-            Out out = new Out(clientSocket);
-
-            // waits for data and reads it in until connection dies
-            // readLine() blocks until the server receives a new line from client
-            String s;
-            while ((s = in.readLine()) != null) {
-                out.println(s);
-            }
-
-            // close IO streams, then socket
-            System.err.println("Closing connection with client");
-            out.close();
-            in.close();
-            clientSocket.close();
-        }
-    }
+	private ServerSocket server;
 }
+
 
