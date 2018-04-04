@@ -1,22 +1,51 @@
 import java.io.*;
 import java.net.*;
 
-class EchoServer {
- public static void main(String argv[]) throws Exception {
-  String clientSentence;
-  String capitalizedSentence;
-  ServerSocket welcomeSocket = new ServerSocket(6789);
+public class EchoServer
+{
+public EchoServer(int portnum)
+	{
+		try
+		{
+			server = new ServerSocket(portnum);
+		}
+		catch (Exception err)
+		{
+			System.out.println(err);
+		}
+		}
+	public void serve()
+	{
+		try
+		{
+			while (true)
+			{
+			Socket client = server.accept();
+				BufferedReader r = new BufferedReader(new InputStreamReader(client.getInputStream()));
+				PrintWriter w = new PrintWriter(client.getOutputStream(), true);
+				w.println("Welcome to the Java EchoServer.  Type 'bye' to close.");
+				String line;
+				do
+				{
+				line = r.readLine();
+					if ( line != null )
+					System.out.println("client says: "+line);
+						w.println("Got: "+ line);
+				}
+				while ( !line.trim().equals("bye") );
+				client.close();
+				}
+		}
+		catch (Exception err)
+		{
+			System.err.println(err);
+		}
+	}
+	public static void main(String[] args)
+	{
+		EchoServer s = new EchoServer(9999);
+		s.serve();
+	}
 
-  
-   Socket connectionSocket = welcomeSocket.accept();
-   BufferedReader inFromClient =
-    new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-   DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
-   while (true) {
-   clientSentence = inFromClient.readLine();
-   System.out.println("Received: " + clientSentence);
-   capitalizedSentence = clientSentence.toUpperCase() + '\n';
-   outToClient.writeBytes(capitalizedSentence);
-  }
- }
+	private ServerSocket server;
 }
